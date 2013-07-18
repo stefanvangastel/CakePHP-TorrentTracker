@@ -1,0 +1,121 @@
+<?php
+class UploadsController extends AppController {
+
+	public $uses = array('TorrentTracker.Torrent');
+
+	private $uploaddir;
+
+	private $torrentdir;
+
+	function beforeFilter(){
+		$this->uploaddir = APP.'Plugin'.DS.'TorrentTracker'.DS.'webroot'.DS.'files'.DS.'uploads'.DS;
+		$this->torrentdir = APP.'Plugin'.DS.'TorrentTracker'.DS.'webroot'.DS.'files'.DS.'torrents'.DS;
+	}
+
+	function index(){
+		$this->redirect('uploadfile');
+	}
+
+	function uploadfile(){
+		
+	}
+
+	function ajaxupload(){
+
+		//Init upload handler from Vendor:
+		#error_reporting(E_ALL | E_STRICT);
+		require(APP.'Plugin'.DS.'TorrentTracker'.DS.'Vendor'.DS.'jqueryfileupload'.DS.'UploadHandler.php');
+
+		//Capture output, this way we do not have to touch the UploadHandler object
+		ob_start();
+
+		//Handle upload
+		if(!file_exists($this->uploaddir)){
+			mkdir($this->uploaddir);
+		}
+
+		//Upload to plugin upload dir
+		$options['upload_dir'] = $this->uploaddir;		
+		
+		$upload_handler = new UploadHandler($options); 
+ 		
+ 		//Get output
+		$json_output = ob_get_contents();
+
+		//Clear buffer
+		ob_end_clean(); 
+
+		//Convert output to PHP object, we need filename
+		$output =  json_decode($json_output);
+
+		//Create torrent of file
+		$this->Torrent->createtorrent($output->files[0]->name);
+
+		//Append torrentlink
+		$output->files[0]->torrentlink = Router::url('/torrent_tracker/files/torrents/'.$output->files[0]->name.'.torrent',true);
+
+		//Encode with torrentlink for json output
+		$json_output = json_encode($output);
+	
+		//Do not render view. The UploadHandler will respond
+		echo $json_output; //Echo the json output for the file upload plugin
+
+		//Do not render view
+		$this->autoRender = false;
+	}
+
+	/**
+	 * Ajax function to list files + torrent
+	 * @return [type] [description]
+	 */
+	function ajaxlistfiles(){
+
+		
+
+		//Glob all files in uploaddir
+		$files = array();
+		foreach(glob($this->uploaddir.'*') as $file){
+
+			//Strip path
+			$filename = str_replace($this->uploaddir,'',$file);
+
+			$files[$filename]['filename']=$filename;
+			$files[$filename]['filesize']=filesize($file) / 1024 / 1024; //Mb
+			$files[$filename]['modified']=filemtime($file); //Mb
+
+			//Check torrent
+			if( file_exists( $this->torrentdir.$filename.'.torrent' )){
+				$files[$filename]['torrent']=$filename.'.torrent';
+			}
+
+		}
+
+		$this->set('files',$files);
+
+		$this->layout = 'ajax';
+	}
+
+	/**
+	 * Ajax delete file + torrent
+	 * @return [type] [description]
+	 */
+	function ajaxdeletefile($filename = null){
+
+		$filename = base64_decode(urldecode($filename));
+
+		//Delete uploaddir
+		if(file_exists($this->uploaddir.$filename)){
+			unlink($this->uploaddir.$filename);
+		}
+
+		//Delete torrent
+		if(file_exists($this->torrentdir.$filename.'.torrent')){
+			unlink($this->torrentdir.$filename.'.torrent');
+		}
+
+		$this->autoRender = false; //Dont render view. Complete action will update screen
+	}
+
+
+}
+?>
