@@ -3,7 +3,7 @@
 
 # Intro
 
-Plugin born out of need to faclitate torrent-based peer-to-peer update mechanism from CakePHP based webapp.
+Plugin born out of need to faclitate torrent-based peer-to-peer update mechanism managed from CakePHP based webapp.
 
 Provides Torrent tracker/server plugin for CakePHP including fileupload, torrent creator, seedserver and announce url. Based on the PHP Tracker project.
 
