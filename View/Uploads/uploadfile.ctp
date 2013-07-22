@@ -1,10 +1,16 @@
+<?php
+//Determine max filesize before upload
+$maxfilesize = min(rtrim(ini_get('post_max_size'),'M'),rtrim(ini_get('upload_max_filesize'),'M'));
+$maxfilesize = ($maxfilesize)*1024*1024;
+?>
+
 <h2>Files</h2>
 <div id="files">Loading filelist...</div>
 
 <!-- The fileinput-button span is used to style the file input field as button -->
 <span class="btn btn-success fileinput-button">
     <i class="icon-plus icon-white"></i>
-    <span>Upload files...</span>
+    <span>Upload files (max <?php echo round($maxfilesize/1024/1024,2)." Mb"; ?> / file)...</span>
     <!-- The file input field used as target for the file upload widget -->
     <input id="fileupload" type="file" name="files[]" multiple>
 </span>
@@ -17,13 +23,7 @@
 <!-- The container for the uploaded files -->
 <div id="files" class="files"></div>
 
-
-
 <?php
-//Determine max filesize before upload
-$maxfilesize = min(rtrim(ini_get('post_max_size'),'M'),rtrim(ini_get('upload_max_filesize'),'M'));
-$maxfilesize = ($maxfilesize)*1024*1024;
-
 //Load CSS
 $this->start('css');
 	echo $this->Html->css('/torrent_tracker/css/jquery.fileupload-ui.css');
@@ -78,9 +78,13 @@ $this->start('script');
 	    $('#fileupload').fileupload({
 	        url: url,
 	        dataType: 'json',
-	        maxFileSize: 5000000, // 5 MB
 	        done: function (e, data) {
 	            showfiles(); //Refresh list
+	            var progress = 0;
+	            window.setTimeout($('#progress .bar').css(
+	                'width',
+	                progress + '%'
+	            ),800);
 	        },
 	        progressall: function (e, data) {
 	            var progress = parseInt(data.loaded / data.total * 100, 10);
