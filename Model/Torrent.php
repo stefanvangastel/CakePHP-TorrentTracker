@@ -5,7 +5,7 @@ class Torrent extends TorrentTrackerAppModel {
 
 	public $name = 'Torrent';
 
-	public $useTable = false;
+	public $useTable = 'phptracker_torrents';
 
 	private $uploaddir;
 
@@ -13,6 +13,8 @@ class Torrent extends TorrentTrackerAppModel {
 
 	public function __construct(){
 		
+		parent::__construct();
+
 		$this->uploaddir = APP.'Plugin'.DS.'TorrentTracker'.DS.'webroot'.DS.'files'.DS.'uploads'.DS;
 
 		$this->torrentdir = APP.'Plugin'.DS.'TorrentTracker'.DS.'webroot'.DS.'files'.DS.'torrents'.DS;

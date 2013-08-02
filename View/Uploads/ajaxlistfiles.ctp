@@ -1,12 +1,13 @@
 
-<table class="table table-hover table-condensed table-rounded">
+<table class="table table-hover table-condensed table-rounded table-bordered">
 	<tr>
 		<th>Filename</th>
 		<th>Size</th>
 		<th>Uploaded</th>
 		<th>Download</th>
 		<th>Torrent</th>
-		<th></th>
+		<th>Delete</th>
+		<th>Swarm info</th>
 	</tr>
 	<?php
 	//Webroot/files base URL:
@@ -26,6 +27,64 @@
 					}
 				echo'</td>';
 				echo '<td>' . $this->Html->link('<i class="icon-trash"></i>','#',array('escape'=>false,'onclick'=>'return false;','id'=>md5($filename)),'Delete this file and torrent, are you sure?') . '</td>';
+				echo '<td>';
+
+					if(!empty($props['peers'])){
+						
+							echo '<table width="100%" class="table-hover table-condensed table-rounded table-bordered">';
+								echo '<tr>';
+									echo '<th></th>';
+									echo '<th width="22%">Host</th>';
+									echo '<th width="16%">Up</th>';
+									echo '<th width="16%">Down</th>';
+									echo '<th width="16%">Left</th>';
+									echo '<th width="10%">Status</th>';
+									echo '<th width="16%">On/offline</th>';
+								echo '</tr>';
+
+								foreach($props['peers'] as $peer){
+									echo '<tr>';
+										echo '<td>';
+
+											$icon = 'user';
+											$label = 'Peer';
+											if($peer['Peer']['ip_address'] == ip2long(getHostByName(getHostName()))){
+												//Is it this seedserver?
+												$icon = 'hdd';
+												$label = 'This seedserver';
+											}
+
+											echo '<i class="icon-'.$icon.'" title="'.$label.'"></i>';
+
+										echo '</td>';
+
+										echo '<td><abbr title="'.long2ip($peer['Peer']['ip_address']).' : '.$peer['Peer']['port'].'">' . gethostbyaddr(long2ip($peer['Peer']['ip_address'])) . '</abbr></td>';
+										echo '<td>' . round($peer['Peer']['bytes_uploaded'] / 1024 / 1024 ,2).' Mb' . '</td>';
+										echo '<td>' . round($peer['Peer']['bytes_downloaded'] / 1024 / 1024 ,2).' Mb' . '</td>';
+										echo '<td>' . round($peer['Peer']['bytes_left'] / 1024 / 1024 ,2).' Mb' . '</td>';
+										echo '<td>' . $peer['Peer']['status'] . '</td>';
+
+										echo '<td>';
+
+											$icon = 'ok';
+											if(strtotime($peer['Peer']['expires']) < time()){
+												//Is it this seedserver?
+												$icon = 'remove';
+											}
+
+											echo '<i class="icon-'.$icon.'"></i>';
+
+										echo '</td>';
+
+									echo '</tr>';
+								}
+							echo '</table>';
+
+					}else{
+						echo 'No peers';
+					}
+
+				echo '</td>';
 			echo '</tr>';
 
 			//Ajax action

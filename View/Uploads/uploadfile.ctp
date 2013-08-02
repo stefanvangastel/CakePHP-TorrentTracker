@@ -23,6 +23,33 @@ $maxfilesize = ($maxfilesize)*1024*1024;
 <!-- The container for the uploaded files -->
 <div id="files" class="files"></div>
 
+
+
+<h2>Seed server</h2>
+<div id="seed_server">
+<?php
+
+if(stristr(`ps -ef | grep seed`, 'TorrentTracker.seeder')){
+	echo '<font color="green"><h3>Running</h3></font>';
+	echo '<pre>';
+		$result = explode("\n",`ps -ef | grep TorrentTracker.seeder`);
+
+		unset($result[count($result) - 1]);
+		unset($result[count($result) - 1]);
+		unset($result[count($result) - 1]);
+
+		$result = implode("\n", $result);
+
+		echo $result;
+	echo '</pre>';
+}else{
+	echo '<font color="red"><h3>Not running</h3></font>';
+}
+
+?>
+</div>
+
+
 <?php
 //Load CSS
 $this->start('css');
@@ -52,6 +79,9 @@ $this->start('script');
 		?>
 	}
 	showfiles(); //Init
+
+	/*Auto refresh function*/
+	var refreshId = setInterval(function(){showfiles();}, 10000);
 
 	//binds to onchange event of your input field
 	if (typeof(FileReader) != "undefined") { //HTML 5 support check

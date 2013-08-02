@@ -1,7 +1,7 @@
 <?php
 class UploadsController extends AppController {
 
-	public $uses = array('TorrentTracker.Torrent');
+	public $uses = array('TorrentTracker.Torrent','TorrentTracker.Peer');
 
 	private $uploaddir;
 
@@ -70,8 +70,6 @@ class UploadsController extends AppController {
 	 */
 	function ajaxlistfiles(){
 
-		
-
 		//Glob all files in uploaddir
 		$files = array();
 		foreach(glob($this->uploaddir.'*') as $file){
@@ -85,9 +83,17 @@ class UploadsController extends AppController {
 
 			//Check torrent
 			if( file_exists( $this->torrentdir.$filename.'.torrent' )){
-				$files[$filename]['torrent']=$filename.'.torrent';
-			}
 
+				//Add torrent file
+				$files[$filename]['torrent']=$filename.'.torrent';
+
+				//Check database table phptracker_peers for torrent peers:
+				if($torrent = $this->Torrent->findByName($filename)){
+					if($peers = $this->Peer->findAllByInfoHash($torrent['Torrent']['info_hash'])){
+						$files[$filename]['peers']=$peers;
+					}
+				}
+			}
 		}
 
 		$this->set('files',$files);

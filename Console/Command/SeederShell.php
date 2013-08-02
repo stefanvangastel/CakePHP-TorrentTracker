@@ -32,11 +32,11 @@ class SeederShell extends AppShell {
 		        // Optional parameter for IP to open socket on if differs from external.
 		        //'seeder_internal_address'   => '192.168.2.123',
 		        // Number telling how many processes should be forked to listen to incoming connections.
-		        'peer_forks'                => 3,
+		        'peer_forks'                => 2,
 		        // If specified, gives a number of outsider seeders to make self-seeding stop.
 		        // This saves you bandwidth - once your file is seeded by others, you can stop serving it.
 		        // Number of seeders is permanently checked, but probably 1 is too few if you want your file to be available always.
-		        'seeders_stop_seeding'      => 3,
+		        'seeders_stop_seeding'      => 2,
 		        // Intializing file logger with default file path (/var/log/phptracker.log).
 		        'logger'  => new PHPTracker_Logger_File(),
 		    )

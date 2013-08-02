@@ -3,6 +3,6 @@ class Peer extends TorrentTrackerAppModel {
 
 	public $name = 'Peer';
 
-	public $useTable = false;
+	public $useTable = 'phptracker_peers';
 
 }
