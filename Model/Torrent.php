@@ -3,6 +3,8 @@ App::uses('ConnectionManager', 'Model');
 
 class Torrent extends TorrentTrackerAppModel {
 
+	public $primaryKey = 'info_hash';
+
 	public $name = 'Torrent';
 
 	public $useTable = 'phptracker_torrents';

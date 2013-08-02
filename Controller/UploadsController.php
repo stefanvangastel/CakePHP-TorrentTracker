@@ -119,6 +119,9 @@ class UploadsController extends AppController {
 			unlink($this->torrentdir.$filename.'.torrent');
 		}
 
+		//Delete from DB
+		$this->Torrent->deleteAll(array('name'=>$filename));
+
 		$this->autoRender = false; //Dont render view. Complete action will update screen
 	}
 
